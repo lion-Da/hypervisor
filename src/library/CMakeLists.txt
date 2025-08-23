@@ -15,6 +15,10 @@ target_link_libraries(library PRIVATE
 	driver_file
 )
 
+target_compile_options(library PRIVATE
+    "/wd4819"  # 禁用C4819警告（文件包含不能在当前代码页中表示的字符）
+)
+
 target_include_directories(library PUBLIC
 	${CMAKE_CURRENT_SOURCE_DIR}/../include
 )

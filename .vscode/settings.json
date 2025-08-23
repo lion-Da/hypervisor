@@ -1,0 +1,60 @@
+{
+    "cmakeIntelliSence.trace.server": "verbose",
+    "C_Cpp.default.compileCommands": "${workspaceFolder}/compile_commands.json",
+    "C_Cpp.intelliSenseEngine": "default",
+    
+    // OUTPUT窗口中文乱码解决方案
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.profiles.windows": {
+        "PowerShell": {
+            "source": "PowerShell",
+            "args": ["-NoExit", "-Command", "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::InputEncoding = [System.Text.Encoding]::UTF8; chcp 65001"]
+        },
+        "Command Prompt": {
+            "path": ["${env:windir}\\System32\\cmd.exe"],
+            "args": ["/k", "chcp 65001 >nul"]
+        }
+    },
+    
+    // CMake和编译输出编码设置
+    "cmake.outputLogEncoding": "utf8",
+    "cmake.buildEnvironment": {
+        "PYTHONIOENCODING": "utf-8",
+        "LC_ALL": "C.UTF-8"
+    },
+    
+    // 文件编码设置
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": true,
+    
+    // C++文件编码
+    "[cpp]": {
+        "files.encoding": "utf8"
+    },
+    "[c]": {
+        "files.encoding": "utf8"
+    },
+    "[hpp]": {
+        "files.encoding": "utf8"
+    },
+    "[h]": {
+        "files.encoding": "utf8"
+    },
+    
+    // 编辑器Unicode设置
+    "editor.unicodeHighlight.allowedCharacters": {
+        "，": true,
+        "。": true,
+        "：": true,
+        "；": true,
+        "（": true,
+        "）": true,
+        "【": true,
+        "】": true
+    },
+    "editor.unicodeHighlight.nonBasicASCII": false,
+    
+    // 输出和调试控制台编码
+    "debug.console.fontSize": 14,
+    "debug.console.fontFamily": "Consolas, 'Courier New', monospace"
+}

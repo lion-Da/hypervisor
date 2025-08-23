@@ -1,0 +1,164 @@
+[
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -emit-pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -x c++-header -o src\\driver\\CMakeFiles\\driver.dir\\cmake_pch.hxx.pch -c F:\\project\\hypervisor\\build\\ninja\\src\\driver\\CMakeFiles\\driver.dir\\cmake_pch.hxx.cxx",
+  "file": "F:\\project\\hypervisor\\build\\ninja\\src\\driver\\CMakeFiles\\driver.dir\\cmake_pch.hxx.cxx",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\cmake_pch.hxx.pch"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\driver_main.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\driver_main.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\driver_main.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\driver_main.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\ept.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\ept.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\ept.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\ept.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\globals.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\globals.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\globals.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\globals.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\hypervisor.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\hypervisor.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\hypervisor.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\hypervisor.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\irp.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\irp.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\irp.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\irp.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\memory.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\memory.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\memory.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\memory.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\new.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\new.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\new.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\new.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\process.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\process.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\process.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\process.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\process_callback.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\process_callback.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\process_callback.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\process_callback.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\sleep_callback.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\sleep_callback.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\sleep_callback.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\sleep_callback.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\string.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\string.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\string.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\string.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -isystem \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/driver/CMakeFiles/driver.dir/cmake_pch.hxx -o src\\driver\\CMakeFiles\\driver.dir\\thread.cpp.obj -c F:\\project\\hypervisor\\src\\driver\\thread.cpp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\thread.cpp",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\thread.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "ml64 -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -IF:/project/hypervisor/external/ia32-doc/out -IF:/project/hypervisor/src/shared -I\"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -I\"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -I\"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" /Zp8 /GF /GR- /Gz /FIwarning.h /FIF:/project/hypervisor/build/ninja/CMakeFiles/wdkflags.h /Oi /Zc:threadSafeInit- -c -Fo src\\driver\\CMakeFiles\\driver.dir\\assembly.asm.obj F:\\project\\hypervisor\\src\\driver\\assembly.asm",
+  "file": "F:\\project\\hypervisor\\src\\driver\\assembly.asm",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\assembly.asm.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "\"C:\\Program Files\\CMake\\bin\\cmake.exe\" -E cmake_llvm_rc F:\\project\\hypervisor\\src\\driver\\resource.rc src\\driver\\CMakeFiles\\driver.dir\\resource.rc.res.pp C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -DRC_INVOKED -I F:/project/hypervisor/external/ia32-doc/out -I F:/project/hypervisor/src/shared -I \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -I \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -I \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" -x c -E -- F:\\project\\hypervisor\\src\\driver\\resource.rc ++ C:\\PROGRA~1\\LLVM\\bin\\llvm-rc.exe -DAMD64 -DDBG=1 -DDEPRECATE_DDK_FUNCTIONS=1 -DMSC_NOOPT -DWINNT=1 -D_AMD64_ -D_WIN32_WINNT=0x0601 -I SOURCE_DIR -I F:/project/hypervisor/external/ia32-doc/out -I F:/project/hypervisor/src/shared -I \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/shared\" -I \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km\" -I \"C:/Program Files (x86)/Windows Kits/10/Include/10.0.26100.0/km/crt\" /fo src\\driver\\CMakeFiles\\driver.dir\\resource.rc.res src\\driver\\CMakeFiles\\driver.dir\\resource.rc.res.pp",
+  "file": "F:\\project\\hypervisor\\src\\driver\\resource.rc",
+  "output": "src\\driver\\CMakeFiles\\driver.dir\\resource.rc.res"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -emit-pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -x c++-header -o src\\library\\CMakeFiles\\library.dir\\cmake_pch.hxx.pch -c F:\\project\\hypervisor\\build\\ninja\\src\\library\\CMakeFiles\\library.dir\\cmake_pch.hxx.cxx",
+  "file": "F:\\project\\hypervisor\\build\\ninja\\src\\library\\CMakeFiles\\library.dir\\cmake_pch.hxx.cxx",
+  "output": "src\\library\\CMakeFiles\\library.dir\\cmake_pch.hxx.pch"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\driver.cpp.obj -c F:\\project\\hypervisor\\src\\library\\driver.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\driver.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\driver.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\driver_device.cpp.obj -c F:\\project\\hypervisor\\src\\library\\driver_device.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\driver_device.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\driver_device.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\main.cpp.obj -c F:\\project\\hypervisor\\src\\library\\main.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\main.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\main.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\native_handle.cpp.obj -c F:\\project\\hypervisor\\src\\library\\native_handle.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\native_handle.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\native_handle.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\process.cpp.obj -c F:\\project\\hypervisor\\src\\library\\process.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\process.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\process.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\service_handle.cpp.obj -c F:\\project\\hypervisor\\src\\library\\service_handle.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\service_handle.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\service_handle.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\utils\\io.cpp.obj -c F:\\project\\hypervisor\\src\\library\\utils\\io.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\utils\\io.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\utils\\io.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -Dlibrary_EXPORTS -IF:/project/hypervisor/src/library/../include -IF:/project/hypervisor/src/shared -IF:/project/hypervisor/build/ninja/src/driver/debug -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++20 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -Xclang -include-pch -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx.pch -Xclang -include -Xclang F:/project/hypervisor/build/ninja/src/library/CMakeFiles/library.dir/cmake_pch.hxx -o src\\library\\CMakeFiles\\library.dir\\utils\\nt.cpp.obj -c F:\\project\\hypervisor\\src\\library\\utils\\nt.cpp",
+  "file": "F:\\project\\hypervisor\\src\\library\\utils\\nt.cpp",
+  "output": "src\\library\\CMakeFiles\\library.dir\\utils\\nt.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "\"C:\\Program Files\\CMake\\bin\\cmake.exe\" -E cmake_llvm_rc F:\\project\\hypervisor\\src\\library\\resource.rc src\\library\\CMakeFiles\\library.dir\\resource.rc.res.pp C:\\PROGRA~1\\LLVM\\bin\\clang.exe -Dlibrary_EXPORTS -DRC_INVOKED -I F:/project/hypervisor/src/library/../include -I F:/project/hypervisor/src/shared -I F:/project/hypervisor/build/ninja/src/driver/debug -x c -E -- F:\\project\\hypervisor\\src\\library\\resource.rc ++ C:\\PROGRA~1\\LLVM\\bin\\llvm-rc.exe -Dlibrary_EXPORTS -I SOURCE_DIR -I F:/project/hypervisor/src/library/../include -I F:/project/hypervisor/src/shared -I F:/project/hypervisor/build/ninja/src/driver/debug /fo src\\library\\CMakeFiles\\library.dir\\resource.rc.res src\\library\\CMakeFiles\\library.dir\\resource.rc.res.pp",
+  "file": "F:\\project\\hypervisor\\src\\library\\resource.rc",
+  "output": "src\\library\\CMakeFiles\\library.dir\\resource.rc.res"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "C:\\PROGRA~1\\LLVM\\bin\\clang++.exe -IF:/project/hypervisor/src/runner/../include -IF:/project/hypervisor/src/library/../include -O0 -g -Xclang -gcodeview /Od /Ob0 /Zi -std=gnu++17 -D_DEBUG -Xclang -flto-visibility-public-std -D_MT -Xclang --dependent-lib=libcmtd -o src\\runner\\CMakeFiles\\runner.dir\\main.cpp.obj -c F:\\project\\hypervisor\\src\\runner\\main.cpp",
+  "file": "F:\\project\\hypervisor\\src\\runner\\main.cpp",
+  "output": "src\\runner\\CMakeFiles\\runner.dir\\main.cpp.obj"
+},
+{
+  "directory": "F:/project/hypervisor/build/ninja",
+  "command": "\"C:\\Program Files\\CMake\\bin\\cmake.exe\" -E cmake_llvm_rc F:\\project\\hypervisor\\src\\runner\\resource.rc src\\runner\\CMakeFiles\\runner.dir\\resource.rc.res.pp C:\\PROGRA~1\\LLVM\\bin\\clang.exe -DRC_INVOKED -I F:/project/hypervisor/src/runner/../include -I F:/project/hypervisor/src/library/../include -x c -E -- F:\\project\\hypervisor\\src\\runner\\resource.rc ++ C:\\PROGRA~1\\LLVM\\bin\\llvm-rc.exe -I SOURCE_DIR -I F:/project/hypervisor/src/runner/../include -I F:/project/hypervisor/src/library/../include /fo src\\runner\\CMakeFiles\\runner.dir\\resource.rc.res src\\runner\\CMakeFiles\\runner.dir\\resource.rc.res.pp",
+  "file": "F:\\project\\hypervisor\\src\\runner\\resource.rc",
+  "output": "src\\runner\\CMakeFiles\\runner.dir\\resource.rc.res"
+}
+]

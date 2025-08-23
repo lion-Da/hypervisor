@@ -2,8 +2,8 @@
 #include "ept.hpp"
 
 #include "assembly.hpp"
-#include "finally.hpp"
-#include "logging.hpp"
+//#include "finally.hpp"
+//#include "logging.hpp"
 #include "memory.hpp"
 #include "vmx.hpp"
 
@@ -656,5 +656,74 @@ namespace vmx
 		}
 
 		return changed;
+	}
+
+	// === 优化版hook实现 ===
+
+	optimized_ept_hook::optimized_ept_hook(const strong_types::PhysicalAddress& addr, 
+	                                       const strong_types::HookId& id)
+		: base_address(addr), hook_id(id), access_count(0), target_page(nullptr), 
+		  mapped_virtual_address(nullptr), large_hook_data(nullptr), large_hook_size(0)
+	{
+		// 初始化内联hook数据为0
+		memset(inline_hook_data, 0, sizeof(inline_hook_data));
+	}
+
+	optimized_ept_hook::~optimized_ept_hook()
+	{
+		// 清理大型hook数据（如果存在）
+		if (large_hook_data)
+		{
+			memory::free_non_paged_memory(large_hook_data);
+			large_hook_data = nullptr;
+		}
+	}
+
+	error_handling::Result<void> optimized_ept_hook::set_hook_data(const void* data, size_t size)
+	{
+		if (!data || size == 0)
+		{
+			return error_handling::Result<void>::error(STATUS_INVALID_PARAMETER);
+		}
+
+		// 如果数据小于等于32字节，使用内联存储
+		if (size <= 32)
+		{
+			// 清理任何现有的大型数据
+			if (large_hook_data)
+			{
+				memory::free_non_paged_memory(large_hook_data);
+				large_hook_data = nullptr;
+				large_hook_size = 0;
+			}
+
+			// 复制到内联存储
+			memcpy(inline_hook_data, data, size);
+			if (size < 32)
+			{
+				memset(inline_hook_data + size, 0, 32 - size);
+			}
+		}
+		else
+		{
+			// 使用外部存储
+			auto* new_data = static_cast<uint8_t*>(memory::allocate_non_paged_memory(size));
+			if (!new_data)
+			{
+				return error_handling::Result<void>::error(STATUS_INSUFFICIENT_RESOURCES);
+			}
+
+			// 清理旧数据
+			if (large_hook_data)
+			{
+				memory::free_non_paged_memory(large_hook_data);
+			}
+
+			large_hook_data = new_data;
+			large_hook_size = size;
+			memcpy(large_hook_data, data, size);
+		}
+
+		return error_handling::Result<void>::success();
 	}
 }

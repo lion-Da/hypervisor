@@ -22,6 +22,9 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
 
 if(MSVC)
+  # 禁用C4819警告（文件包含不能在当前代码页中表示的字符）
+  add_compile_options(/wd4819)
+  
   add_link_options(
     $<$<NOT:$<STREQUAL:${CMAKE_MSVC_RUNTIME_LIBRARY},MultiThreaded>>:/NODEFAULTLIB:libcmt.lib>
     $<$<NOT:$<STREQUAL:${CMAKE_MSVC_RUNTIME_LIBRARY},MultiThreadedDLL>>:/NODEFAULTLIB:msvcrt.lib>

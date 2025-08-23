@@ -31,6 +31,7 @@ target_link_libraries(driver
 
 target_compile_options(driver PRIVATE
     "/Zc:threadSafeInit-"
+    "/wd4819"  # 禁用C4819警告（文件包含不能在当前代码页中表示的字符）
 )
 
 target_link_options(driver PRIVATE

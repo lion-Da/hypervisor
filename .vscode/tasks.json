@@ -1,0 +1,83 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "PYTHONIOENCODING": "utf-8",
+            "LC_ALL": "C.UTF-8",
+            "LANG": "C.UTF-8"
+        }
+    },
+    "windows": {
+        "options": {
+            "shell": {
+                "executable": "powershell.exe",
+                "args": [
+                    "-NoProfile",
+                    "-ExecutionPolicy",
+                    "Bypass",
+                    "-Command",
+                    "[Console]::OutputEncoding = [System.Text.Encoding]::UTF8; [Console]::InputEncoding = [System.Text.Encoding]::UTF8; chcp 65001 >$null;"
+                ]
+            }
+        }
+    },
+    "tasks": [
+        {
+            "label": "配置CMake",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--preset",
+                "vs2022"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "构建项目",
+            "type": "shell", 
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/vs2022"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "清理构建",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/vs2022",
+                "--target",
+                "clean"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+}
+
