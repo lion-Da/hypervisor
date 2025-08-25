@@ -61,3 +61,29 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_RELEASE}")
 add_subdirectory_and_get_targets("external" EXTERNAL_TARGETS)
 add_subdirectory_and_get_targets("src" SRC_TARGETS)
 targets_set_warnings_as_errors(${SRC_TARGETS})
+
+# 添加驱动签名和部署目标
+if(WIN32)
+    # 获取hyperhook_driver目标的输出路径
+    set(DRIVER_OUTPUT_NAME "hyperhook") 
+    set(DRIVER_OUTPUT_PATH "${CMAKE_BINARY_DIR}/artifacts-debug/${DRIVER_OUTPUT_NAME}.sys")
+    message(STATUS "DRIVER_OUTPUT_PATH: ${DRIVER_OUTPUT_PATH}")
+    # 添加签名目标
+    add_custom_target(sign_driver ALL
+        COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/cert/sign.bat "$<TARGET_FILE:driver>"
+        DEPENDS driver
+        COMMENT "Signing driver..."
+        VERBATIM
+    )
+
+    # 添加部署目标
+    add_custom_target(deploy_to_vm ALL
+        COMMAND powershell -ExecutionPolicy Bypass -File 
+                "${CMAKE_CURRENT_SOURCE_DIR}/deploy_to_vm.ps1"
+                -BuildConfig $<CONFIG>
+                -ArtifactPath "${ARTIFACT_DIRECTORY}"
+        DEPENDS sign_driver
+        COMMENT "Deploying to VM..."
+        VERBATIM
+    )
+endif()
