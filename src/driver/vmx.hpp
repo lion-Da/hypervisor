@@ -27,12 +27,47 @@ namespace vmx
 		segment_descriptor_register_64 gdtr;
 	};
 
+	// 增强的上下文结构 (基于 barehypervisor 最佳实践)
+	struct enhanced_state_save
+	{
+		// 通用寄存器 (保持Windows兼容性)
+		CONTEXT context_frame;
+		
+		// 控制寄存器 (barehypervisor 风格完整保存)
+		uint64_t cr0, cr2, cr3, cr4, cr8;
+		uint64_t xcr0;
+		
+		// 调试寄存器 (barehypervisor 完整保存)
+		uint64_t dr0, dr1, dr2, dr3, dr6, dr7;
+		
+		// 关键MSR (barehypervisor 风格)
+		uint64_t msr_efer;
+		uint64_t msr_star;
+		uint64_t msr_lstar;
+		uint64_t msr_cstar;
+		uint64_t msr_fmask;
+		uint64_t msr_fs_base;
+		uint64_t msr_gs_base;
+		uint64_t msr_kernel_gs_base;
+		uint64_t msr_sysenter_cs;
+		uint64_t msr_sysenter_esp;
+		uint64_t msr_sysenter_eip;
+		uint64_t msr_pat;
+		uint64_t msr_debugctl;
+		
+		// VMX 相关 (保留现有)
+		ULARGE_INTEGER vmx_msr_data[17];
+		
+		// 状态标志
+		bool context_saved;
+		bool launched;
+	};
+
 	struct launch_context
 	{
 		special_registers special_registers;
-		CONTEXT context_frame;
+		enhanced_state_save state_save;
 		uint64_t system_directory_table_base;
-		ULARGE_INTEGER msr_data[17];
 		uint64_t vmx_on_physical_address;
 		uint64_t vmcs_physical_address;
 		uint64_t msr_bitmap_physical_address;

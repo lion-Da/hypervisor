@@ -3,6 +3,9 @@
 
 namespace thread
 {
+	// CPU 调度顺序常量
+	constexpr bool CPU_ORDER_FORWARD = false;  // 正序：CPU 0 -> 1 -> 2 -> ...
+	constexpr bool CPU_ORDER_REVERSE = true;   // 倒序：CPU N -> N-1 -> ... -> 0
 	uint32_t get_processor_count();
 	uint32_t get_processor_index();
 
@@ -13,21 +16,26 @@ namespace thread
 	_IRQL_requires_max_(APC_LEVEL)
 	_IRQL_requires_min_(PASSIVE_LEVEL)
 	_IRQL_requires_same_
-	void dispatch_on_all_cores(void (*callback)(void*), void* data, bool sequential = false);
+	void dispatch_on_specific_cpu(void (*callback)(void*), void* data, uint32_t cpu_id);
+
+	_IRQL_requires_max_(APC_LEVEL)
+	_IRQL_requires_min_(PASSIVE_LEVEL)
+	_IRQL_requires_same_
+	void dispatch_on_all_cores(void (*callback)(void*), void* data, bool reverse_order = CPU_ORDER_FORWARD);
 
 	_IRQL_requires_max_(APC_LEVEL)
 	_IRQL_requires_min_(PASSIVE_LEVEL)
 	_IRQL_requires_same_
 
 	template <typename F>
-	void dispatch_on_all_cores(F&& callback, bool sequential = false)
+	void dispatch_on_all_cores(F&& callback, bool reverse_order = CPU_ORDER_FORWARD)
 	{
 		dispatch_on_all_cores([](void* data)
 		{
 			(*static_cast<F*>(data))();
-		}, &callback, sequential);
+		}, &callback, reverse_order);
 	}
-
+	
 	class kernel_thread
 	{
 	public:

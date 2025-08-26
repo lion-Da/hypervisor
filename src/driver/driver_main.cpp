@@ -27,6 +27,12 @@ public:
 		  irp_(driver_object, DEV_NAME, DOS_DEV_NAME)
 	{
 		debug_log("Driver started\n");
+		
+		// 延迟启用hypervisor，使用修复后的DPC插入机制
+		if (!this->hypervisor_.try_enable_safely())
+		{
+			debug_log("Warning: Failed to enable hypervisor during driver initialization\n");
+		}
 	}
 
 	~global_driver()

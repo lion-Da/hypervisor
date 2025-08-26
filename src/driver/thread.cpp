@@ -179,12 +179,48 @@ namespace thread
 		return STATUS_SUCCESS == KeDelayExecutionThread(KernelMode, FALSE, &interval);
 	}
 
-	void dispatch_on_all_cores(void (*callback)(void*), void* data, const bool sequential)
+	void dispatch_on_specific_cpu(void (*callback)(void*), void* data, const uint32_t cpu_id)
 	{
 		dispatch_data callback_data{};
 		callback_data.callback = callback;
 		callback_data.data = data;
 
-		KeGenericCallDpc(sequential ? sequential_callback_dispatcher : callback_dispatcher, &callback_data);
+		// 创建 DPC 对象
+		KDPC dpc;
+		KeInitializeDpc(&dpc, [](struct _KDPC* /*dpc*/, PVOID context, PVOID /*arg1*/, PVOID /*arg2*/)
+		{
+			dispatch_callback(context);
+		}, &callback_data);
+
+		// 设置目标 CPU
+		KeSetTargetProcessorDpc(&dpc, static_cast<CCHAR>(cpu_id));
+
+		// 插入 DPC 并等待完成
+		KeInsertQueueDpc(&dpc, nullptr, nullptr);
+
+		// 等待 DPC 完成 (简单的忙等待)
+		while (dpc.DpcData != nullptr) {
+			LARGE_INTEGER interval;
+			interval.QuadPart = -100; // 0.01ms
+			KeDelayExecutionThread(KernelMode, FALSE, &interval);
+		}
+	}
+
+	void dispatch_on_all_cores(void (*callback)(void*), void* data, const bool reverse_order)
+	{
+		const auto cpu_count = get_processor_count();
+		
+		if (reverse_order) {
+			// 倒序：CPU N-1 -> N-2 -> ... -> 1 -> 0 (类似 barehypervisor 的 PLATFORM_REVERSE)
+			for (uint32_t i = cpu_count; i > 0; --i) {
+				const uint32_t cpu_id = i - 1;
+				dispatch_on_specific_cpu(callback, data, cpu_id);
+			}
+		} else {
+			// 正序：CPU 0 -> 1 -> 2 -> ... -> N-1 (类似 barehypervisor 的 PLATFORM_FORWARD)
+			for (uint32_t cpu_id = 0; cpu_id < cpu_count; ++cpu_id) {
+				dispatch_on_specific_cpu(callback, data, cpu_id);
+			}
+		}
 	}
 }

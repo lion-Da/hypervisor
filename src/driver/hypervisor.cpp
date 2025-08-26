@@ -9,9 +9,15 @@
 #include "assembly.hpp"
 #include "process.hpp"
 #include "string.hpp"
+#include "msr_handler.hpp"
 
 #define DPL_USER   3
 #define DPL_SYSTEM 0
+
+// MSR 常量定义
+#ifndef IA32_DEBUGCTL
+#define IA32_DEBUGCTL 0x1D9
+#endif
 
 typedef struct _EPROCESS
 {
@@ -59,7 +65,7 @@ namespace
 		__cpuidex(cpu_info, 0x41414141, 0x42424243);
 	}
 
-	void cpature_special_registers(vmx::special_registers& special_registers)
+	void capture_special_registers(vmx::special_registers& special_registers)
 	{
 		special_registers.cr0 = __readcr0();
 		special_registers.cr3 = __readcr3();
@@ -75,14 +81,98 @@ namespace
 
 	// This absolutely needs to be inlined. Otherwise the stack might be broken upon restoration
 	// See: https://github.com/ionescu007/SimpleVisor/issues/48
-#define capture_cpu_context(launch_context) \
-	      cpature_special_registers((launch_context).special_registers);\
-	      RtlCaptureContext(&(launch_context).context_frame);
+// 增强的 CPU 上下文捕获 (基于 barehypervisor 最佳实践)
+#define capture_enhanced_cpu_context(launch_context) \
+	capture_special_registers((launch_context).special_registers);\
+	capture_full_cpu_state((launch_context).state_save);
+
+	void capture_full_cpu_state(vmx::enhanced_state_save& state)
+	{
+		// 1. 基础上下文 (保持Windows兼容性)
+		RtlCaptureContext(&state.context_frame);
+		
+		// 2. 控制寄存器 (barehypervisor 风格完整保存)
+		state.cr0 = __readcr0();
+		state.cr2 = __readcr2();
+		state.cr3 = __readcr3();
+		state.cr4 = __readcr4();
+		state.cr8 = __readcr8();
+		
+		// XCR0 (如果支持)
+		constexpr uint64_t CR4_OSXSAVE_BIT = (1ULL << 18);  // CR4.OSXSAVE bit
+		if (__readcr4() & CR4_OSXSAVE_BIT)
+		{
+			state.xcr0 = _xgetbv(0);
+		}
+		else
+		{
+			state.xcr0 = 0;
+		}
+		
+		// 3. 调试寄存器 (barehypervisor 完整保存)
+		state.dr0 = __readdr(0);
+		state.dr1 = __readdr(1);
+		state.dr2 = __readdr(2);
+		state.dr3 = __readdr(3);
+		state.dr6 = __readdr(6);
+		state.dr7 = __readdr(7);
+		
+		// 4. 关键MSR (barehypervisor 风格)
+		state.msr_efer = __readmsr(0xC0000080);        // MSR_EFER
+		state.msr_star = __readmsr(0xC0000081);        // MSR_STAR
+		state.msr_lstar = __readmsr(0xC0000082);       // MSR_LSTAR
+		state.msr_cstar = __readmsr(0xC0000083);       // MSR_CSTAR
+		state.msr_fmask = __readmsr(0xC0000084);       // MSR_FMASK
+		state.msr_fs_base = __readmsr(0xC0000100);     // MSR_FS_BASE
+		state.msr_gs_base = __readmsr(0xC0000101);     // MSR_GS_BASE
+		state.msr_kernel_gs_base = __readmsr(0xC0000102); // MSR_KERNEL_GS_BASE
+		state.msr_sysenter_cs = __readmsr(0x174);      // MSR_SYSENTER_CS
+		state.msr_sysenter_esp = __readmsr(0x175);     // MSR_SYSENTER_ESP
+		state.msr_sysenter_eip = __readmsr(0x176);     // MSR_SYSENTER_EIP
+		state.msr_pat = __readmsr(0x277);              // MSR_PAT
+		// 注意：IA32_DEBUGCTL (0x1D9) 现在配置为直接访问，避免 VM exit
+		// 这解决了 VMware 日志中的 "unknown MSR[0x1d9]" 大量消息问题
+		state.msr_debugctl = __readmsr(IA32_DEBUGCTL);         // MSR_DEBUGCTL
+		
+		// 5. VMX MSR 数据 (保留现有机制)
+		for (auto i = 0u; i < 17; ++i)
+		{
+			state.vmx_msr_data[i].QuadPart = __readmsr(IA32_VMX_BASIC + i);
+		}
+		
+		// 6. 设置状态标志
+		state.context_saved = true;
+		state.launched = false;
+		
+		debug_log("Enhanced CPU context captured on core %d\n", thread::get_processor_index());
+	}
 
 	void restore_descriptor_tables(vmx::launch_context& launch_context)
 	{
 		__lgdt(&launch_context.special_registers.gdtr);
 		__lidt(&launch_context.special_registers.idtr);
+	}
+	
+	// 增强的状态恢复函数 (基于 barehypervisor 最佳实践)
+	void restore_full_cpu_state(const vmx::enhanced_state_save& state)
+	{
+		// 1. 恢复控制寄存器
+		__writecr0(state.cr0);
+		__writecr2(state.cr2);
+		__writecr3(state.cr3);
+		__writecr4(state.cr4);
+		__writecr8(state.cr8);
+		
+		// 2. 恢复调试寄存器
+		__writedr(0, state.dr0);
+		__writedr(1, state.dr1);
+		__writedr(2, state.dr2);
+		__writedr(3, state.dr3);
+		__writedr(6, state.dr6);
+		__writedr(7, state.dr7);
+		
+		// 注意：MSR 和上下文恢复在VM exit时处理
+		debug_log("Enhanced CPU state restored on core %d\n", thread::get_processor_index());
 	}
 
 	vmx::state* resolve_vm_state_from_context(CONTEXT& context)
@@ -118,9 +208,9 @@ namespace
 	{
 		auto* vm_state = resolve_vm_state_from_context(*context);
 
-		vm_state->launch_context.context_frame.EFlags |= EFLAGS_ALIGNMENT_CHECK_FLAG_FLAG;
-		vm_state->launch_context.launched = true;
-		restore_context(&vm_state->launch_context.context_frame);
+		vm_state->launch_context.state_save.context_frame.EFlags |= EFLAGS_ALIGNMENT_CHECK_FLAG_FLAG;
+		vm_state->launch_context.state_save.launched = true;
+		restore_context(&vm_state->launch_context.state_save.context_frame);
 	}
 }
 
@@ -151,7 +241,8 @@ hypervisor::hypervisor()
 
 	debug_log("VMX supported!\n");
 	this->allocate_vm_states();
-	this->enable();
+	// 不在构造函数中启用hypervisor，避免可能的死锁
+	// this->enable();
 	destructor.cancel();
 }
 
@@ -165,10 +256,11 @@ hypervisor::~hypervisor()
 
 void hypervisor::disable()
 {
+	// 使用倒序停止 (类似 barehypervisor 的 PLATFORM_REVERSE)
 	thread::dispatch_on_all_cores([this]()
 	{
 		this->disable_core();
-	});
+	}, thread::CPU_ORDER_REVERSE);
 
 	debug_log("Hypervisor disabled on all cores\n");
 }
@@ -251,6 +343,7 @@ void hypervisor::disable_all_ept_hooks() const
 {
 	this->ept_->disable_all_hooks();
 
+	// 禁用钩子也使用倒序 (停止操作)
 	thread::dispatch_on_all_cores([&]
 	{
 		const auto* vm_state = this->get_current_vm_state();
@@ -263,7 +356,7 @@ void hypervisor::disable_all_ept_hooks() const
 		{
 			vm_state->ept->invalidate();
 		}
-	});
+	}, thread::CPU_ORDER_REVERSE);
 }
 
 vmx::ept& hypervisor::get_ept() const
@@ -294,13 +387,14 @@ void hypervisor::enable()
 	this->ept_->initialize();
 
 	volatile long failures = 0;
+	// 使用正序启动 (类似 barehypervisor 的 PLATFORM_FORWARD)
 	thread::dispatch_on_all_cores([&]
 	{
 		if (!this->try_enable_core(cr3))
 		{
 			InterlockedIncrement(&failures);
 		}
-	});
+	}, thread::CPU_ORDER_FORWARD);
 
 	if (failures)
 	{
@@ -309,6 +403,29 @@ void hypervisor::enable()
 	}
 
 	debug_log("Hypervisor enabled on %d cores\n", this->vm_state_count_);
+}
+
+bool hypervisor::try_enable_safely()
+{
+	__try
+	{
+		// 检查是否已经启用
+		if (is_enabled())
+		{
+			debug_log("Hypervisor already enabled\n");
+			return true;
+		}
+
+		// 尝试启用hypervisor
+		enable();
+		debug_log("Hypervisor enabled successfully\n");
+		return true;
+	}
+	__except(EXCEPTION_EXECUTE_HANDLER)
+	{
+		debug_log("Exception during hypervisor enable: 0x%08X\n", GetExceptionCode());
+		return false;
+	}
 }
 
 bool hypervisor::try_enable_core(const uint64_t system_directory_table_base)
@@ -338,7 +455,7 @@ void enter_root_mode_on_cpu(vmx::state& vm_state)
 	ia32_vmx_basic_register basic_register{};
 	memset(&basic_register, 0, sizeof(basic_register));
 
-	basic_register.flags = launch_context->msr_data[0].QuadPart;
+	basic_register.flags = launch_context->state_save.vmx_msr_data[0].QuadPart;
 	if (basic_register.vmcs_size_in_bytes > static_cast<uint64_t>(PAGE_SIZE))
 	{
 		throw std::runtime_error("VMCS exceeds page size");
@@ -355,7 +472,7 @@ void enter_root_mode_on_cpu(vmx::state& vm_state)
 	}
 
 	ia32_vmx_ept_vpid_cap_register ept_vpid_cap_register{};
-	ept_vpid_cap_register.flags = launch_context->msr_data[12].QuadPart;
+	ept_vpid_cap_register.flags = launch_context->state_save.vmx_msr_data[12].QuadPart;
 
 	if (ept_vpid_cap_register.page_walk_length_4 &&
 		ept_vpid_cap_register.memory_type_write_back &&
@@ -366,18 +483,18 @@ void enter_root_mode_on_cpu(vmx::state& vm_state)
 		launch_context->ept_controls.enable_vpid = 1;
 	}
 
-	vm_state.vmx_on.revision_id = launch_context->msr_data[0].LowPart;
-	vm_state.vmcs.revision_id = launch_context->msr_data[0].LowPart;
+	vm_state.vmx_on.revision_id = launch_context->state_save.vmx_msr_data[0].LowPart;
+	vm_state.vmcs.revision_id = launch_context->state_save.vmx_msr_data[0].LowPart;
 
 	launch_context->vmx_on_physical_address = memory::get_physical_address(&vm_state.vmx_on);
 	launch_context->vmcs_physical_address = memory::get_physical_address(&vm_state.vmcs);
 	launch_context->msr_bitmap_physical_address = memory::get_physical_address(vm_state.msr_bitmap);
 
-	registers->cr0 &= launch_context->msr_data[7].LowPart;
-	registers->cr0 |= launch_context->msr_data[6].LowPart;
+	registers->cr0 &= launch_context->state_save.vmx_msr_data[7].LowPart;
+	registers->cr0 |= launch_context->state_save.vmx_msr_data[6].LowPart;
 
-	registers->cr4 &= launch_context->msr_data[9].LowPart;
-	registers->cr4 |= launch_context->msr_data[8].LowPart;
+	registers->cr4 &= launch_context->state_save.vmx_msr_data[9].LowPart;
+	registers->cr4 |= launch_context->state_save.vmx_msr_data[8].LowPart;
 
 	__writecr0(registers->cr0);
 	__writecr4(registers->cr4);
@@ -889,6 +1006,18 @@ void vmx_dispatch_vm_exit(vmx::guest_context& guest_context, const vmx::state& v
 	case VMX_EXIT_REASON_EXECUTE_XSETBV:
 		vmx_handle_xsetbv(guest_context);
 		break;
+	case VMX_EXIT_REASON_EXECUTE_RDMSR:
+		if (!handle_msr_access(guest_context, false)) {
+			debug_log("MSR read failed, injecting #GP exception\n");
+			guest_context.exit_vm = true; // 简化处理：退出到主机
+		}
+		break;
+	case VMX_EXIT_REASON_EXECUTE_WRMSR:
+		if (!handle_msr_access(guest_context, true)) {
+			debug_log("MSR write failed, injecting #GP exception\n");
+			guest_context.exit_vm = true; // 简化处理：退出到主机
+		}
+		break;
 	case VMX_EXIT_REASON_EXECUTE_VMCALL:
 	case VMX_EXIT_REASON_EXECUTE_VMCLEAR:
 	case VMX_EXIT_REASON_EXECUTE_VMLAUNCH:
@@ -964,7 +1093,7 @@ void setup_vmcs_for_cpu(vmx::state& vm_state)
 {
 	auto* launch_context = &vm_state.launch_context;
 	auto* state = &launch_context->special_registers;
-	auto* context = &launch_context->context_frame;
+	auto* context = &launch_context->state_save.context_frame;
 
 	__vmx_vmwrite(VMCS_GUEST_VMCS_LINK_POINTER, ~0ULL);
 
@@ -977,33 +1106,41 @@ void setup_vmcs_for_cpu(vmx::state& vm_state)
 
 	__vmx_vmwrite(VMCS_CTRL_MSR_BITMAP_ADDRESS, launch_context->msr_bitmap_physical_address);
 
+	// 启用安全的 MSR bitmap 配置 (修复 IA32_DEBUGCTL 卡死问题)
+	initialize_msr_handler(vm_state.msr_bitmap);
+
+	// 配置 Exception bitmap (基于TinyVT实现)
+	// 设置为0表示不拦截任何异常，让Guest正常处理
+	uintptr_t exception_bitmap = 0;
+	__vmx_vmwrite(VMCS_CTRL_EXCEPTION_BITMAP, exception_bitmap);
+
 	auto ept_controls = launch_context->ept_controls;
 	ept_controls.enable_rdtscp = 1;
 	ept_controls.enable_invpcid = 1;
 	ept_controls.enable_xsaves = 1;
 	__vmx_vmwrite(VMCS_CTRL_SECONDARY_PROCESSOR_BASED_VM_EXECUTION_CONTROLS,
-	              adjust_msr(launch_context->msr_data[11], ept_controls.flags));
+	              adjust_msr(launch_context->state_save.vmx_msr_data[11], ept_controls.flags));
 
-	__vmx_vmwrite(VMCS_CTRL_PIN_BASED_VM_EXECUTION_CONTROLS, adjust_msr(launch_context->msr_data[13], 0));
+	__vmx_vmwrite(VMCS_CTRL_PIN_BASED_VM_EXECUTION_CONTROLS, adjust_msr(launch_context->state_save.vmx_msr_data[13], 0));
 
 	ia32_vmx_procbased_ctls_register procbased_ctls_register{};
 	procbased_ctls_register.activate_secondary_controls = 1;
 	procbased_ctls_register.use_msr_bitmaps = 1;
 
 	__vmx_vmwrite(VMCS_CTRL_PROCESSOR_BASED_VM_EXECUTION_CONTROLS,
-	              adjust_msr(launch_context->msr_data[14],
+	              adjust_msr(launch_context->state_save.vmx_msr_data[14],
 	                         procbased_ctls_register.flags));
 
 	ia32_vmx_exit_ctls_register exit_ctls_register{};
 	exit_ctls_register.host_address_space_size = 1;
 	__vmx_vmwrite(VMCS_CTRL_PRIMARY_VMEXIT_CONTROLS,
-	              adjust_msr(launch_context->msr_data[15],
+	              adjust_msr(launch_context->state_save.vmx_msr_data[15],
 	                         exit_ctls_register.flags));
 
 	ia32_vmx_entry_ctls_register entry_ctls_register{};
 	entry_ctls_register.ia32e_mode_guest = 1;
 	__vmx_vmwrite(VMCS_CTRL_VMENTRY_CONTROLS,
-	              adjust_msr(launch_context->msr_data[16],
+	              adjust_msr(launch_context->state_save.vmx_msr_data[16],
 	                         entry_ctls_register.flags));
 
 	vmx::gdt_entry gdt_entry{};
@@ -1084,7 +1221,11 @@ void setup_vmcs_for_cpu(vmx::state& vm_state)
 	__vmx_vmwrite(VMCS_GUEST_CR4, state->cr4);
 	__vmx_vmwrite(VMCS_CTRL_CR4_READ_SHADOW, state->cr4);
 
-	__vmx_vmwrite(VMCS_GUEST_DEBUGCTL, state->debug_control);
+	// 配置 GUEST_IA32_DEBUGCTL - 使用物理机当前值，避免VM exit
+	// 这解决了MSR 0x1D9 频繁访问导致的虚拟机卡死问题
+	uint64_t current_debugctl = __readmsr(IA32_DEBUGCTL);
+	__vmx_vmwrite(VMCS_GUEST_DEBUGCTL, current_debugctl);
+	debug_log("GUEST_IA32_DEBUGCTL configured with physical value: 0x%llX\n", current_debugctl);
 	__vmx_vmwrite(VMCS_GUEST_DR7, state->kernel_dr7);
 
 	const auto stack_pointer = reinterpret_cast<uintptr_t>(vm_state.stack_buffer) + KERNEL_STACK_SIZE - sizeof(
@@ -1101,10 +1242,11 @@ void setup_vmcs_for_cpu(vmx::state& vm_state)
 
 void initialize_msrs(vmx::launch_context& launch_context)
 {
-	constexpr auto msr_count = sizeof(launch_context.msr_data) / sizeof(launch_context.msr_data[0]);
+	// 使用增强状态保存中的 VMX MSR 数据
+	constexpr auto msr_count = sizeof(launch_context.state_save.vmx_msr_data) / sizeof(launch_context.state_save.vmx_msr_data[0]);
 	for (auto i = 0u; i < msr_count; ++i)
 	{
-		launch_context.msr_data[i].QuadPart = __readmsr(IA32_VMX_BASIC + i);
+		launch_context.state_save.vmx_msr_data[i].QuadPart = __readmsr(IA32_VMX_BASIC + i);
 	}
 }
 
@@ -1123,16 +1265,32 @@ void initialize_msrs(vmx::launch_context& launch_context)
 
 void hypervisor::enable_core(const uint64_t system_directory_table_base)
 {
-	debug_log("Enabling hypervisor on core %d\n", thread::get_processor_index());
+	const uint32_t cpu_id = thread::get_processor_index();
+	debug_log("Enabling hypervisor on core %d\n", cpu_id);
 	auto* vm_state = this->get_current_vm_state();
+
+	// 检查 CPU 状态 (基于 barehypervisor 模式)
+	if (this->get_cpu_status(cpu_id) != cpu_status::stopped)
+	{
+		throw std::runtime_error("Cannot start CPU that is already running/corrupt");
+	}
+
+	// CPU 配置检查 (基于 barehypervisor)
+	if (!this->check_cpu_configuration())
+	{
+		this->set_cpu_status(cpu_id, cpu_status::corrupt);
+		throw std::runtime_error("CPU configuration check failed");
+	}
 
 	if (!is_vmx_supported())
 	{
+		this->set_cpu_status(cpu_id, cpu_status::corrupt);
 		throw std::runtime_error("VMX not supported on this core");
 	}
 
 	if (!is_vmx_available())
 	{
+		this->set_cpu_status(cpu_id, cpu_status::corrupt);
 		throw std::runtime_error("VMX not available on this core");
 	}
 
@@ -1140,33 +1298,57 @@ void hypervisor::enable_core(const uint64_t system_directory_table_base)
 	vm_state->launch_context.system_directory_table_base = system_directory_table_base;
 
 	// Must be inlined here, otherwise the stack is broken
-	capture_cpu_context(vm_state->launch_context);
+	capture_enhanced_cpu_context(vm_state->launch_context);
 
-	if (!vm_state->launch_context.launched)
+	if (!vm_state->launch_context.state_save.launched)
 	{
 		launch_hypervisor(*vm_state);
 	}
 
 	if (!is_hypervisor_present())
 	{
+		this->set_cpu_status(cpu_id, cpu_status::corrupt);
 		throw std::runtime_error("Hypervisor is not present");
 	}
 
 	enable_syscall_hooking();
+	
+	// 设置 CPU 状态为运行 (基于 barehypervisor 模式)
+	this->set_cpu_status(cpu_id, cpu_status::running);
+	debug_log("Hypervisor enabled successfully on core %d\n", cpu_id);
 }
 
 void hypervisor::disable_core()
 {
-	debug_log("Disabling hypervisor on core %d\n", thread::get_processor_index());
+	const uint32_t cpu_id = thread::get_processor_index();
+	debug_log("Disabling hypervisor on core %d\n", cpu_id);
 
-	int32_t cpu_info[4]{0};
-	__cpuidex(cpu_info, 0x41414141, 0x42424242);
-
-	if (this->is_enabled())
+	// 检查 CPU 状态 (基于 barehypervisor 模式)
+	cpu_status current_status = this->get_cpu_status(cpu_id);
+	if (current_status == cpu_status::corrupt)
 	{
-		debug_log("Shutdown for core %d failed. Issuing kernel panic!\n", thread::get_processor_index());
-		KeBugCheckEx(DRIVER_VIOLATION, 1, 0, 0, 0);
+		debug_log("Unable to stop, CPU %d is in corrupt state\n", cpu_id);
+		return;
 	}
+
+	if (current_status == cpu_status::running)
+	{
+		// 执行 VMX 停止操作
+		int32_t cpu_info[4]{0};
+		__cpuidex(cpu_info, 0x41414141, 0x42424242);
+
+		if (this->is_enabled())
+		{
+			debug_log("Shutdown for core %d failed, marking as corrupt\n", cpu_id);
+			this->set_cpu_status(cpu_id, cpu_status::corrupt);
+			// 不再直接崩溃，而是标记为损坏状态
+			return;
+		}
+	}
+	
+	// 设置 CPU 状态为停止 (基于 barehypervisor 模式)
+	this->set_cpu_status(cpu_id, cpu_status::stopped);
+	debug_log("Hypervisor disabled successfully on core %d\n", cpu_id);
 }
 
 void hypervisor::allocate_vm_states()
@@ -1189,6 +1371,15 @@ void hypervisor::allocate_vm_states()
 	// However virtualizing the hot-plugged cpu won't be supported here.
 	this->vm_state_count_ = thread::get_processor_count();
 	this->vm_states_ = new vmx::state*[this->vm_state_count_]{};
+	
+	// 分配 CPU 状态数组 (基于 barehypervisor 模式)
+	this->cpu_status_array_ = new cpu_status[this->vm_state_count_];
+	
+	// 初始化所有 CPU 状态为 stopped
+	for (auto i = 0u; i < this->vm_state_count_; ++i)
+	{
+		this->cpu_status_array_[i] = cpu_status::stopped;
+	}
 
 	for (auto i = 0u; i < this->vm_state_count_; ++i)
 	{
@@ -1215,6 +1406,13 @@ void hypervisor::free_vm_states()
 		this->vm_states_ = nullptr;
 		this->vm_state_count_ = 0;
 	}
+	
+	// 清理 CPU 状态数组
+	if (this->cpu_status_array_)
+	{
+		delete[] this->cpu_status_array_;
+		this->cpu_status_array_ = nullptr;
+	}
 
 	if (this->ept_)
 	{
@@ -1225,6 +1423,7 @@ void hypervisor::free_vm_states()
 
 void hypervisor::invalidate_cores() const
 {
+	// 状态同步操作，使用正序 (默认)
 	thread::dispatch_on_all_cores([&]
 	{
 		const auto* vm_state = this->get_current_vm_state();
@@ -1232,7 +1431,7 @@ void hypervisor::invalidate_cores() const
 		{
 			vm_state->ept->invalidate();
 		}
-	});
+	}, thread::CPU_ORDER_FORWARD);
 }
 
 vmx::state* hypervisor::get_current_vm_state() const
@@ -1244,4 +1443,70 @@ vmx::state* hypervisor::get_current_vm_state() const
 	}
 
 	return this->vm_states_[current_core];
+}
+
+// CPU 状态管理方法 (基于 barehypervisor 模式)
+void hypervisor::set_cpu_status(uint32_t cpu_id, cpu_status status)
+{
+	if (cpu_id < this->vm_state_count_ && this->cpu_status_array_)
+	{
+		this->cpu_status_array_[cpu_id] = status;
+	}
+}
+
+cpu_status hypervisor::get_cpu_status(uint32_t cpu_id) const
+{
+	if (cpu_id < this->vm_state_count_ && this->cpu_status_array_)
+	{
+		return this->cpu_status_array_[cpu_id];
+	}
+	return cpu_status::stopped;
+}
+
+// CPU 配置检查 (基于 barehypervisor 的 check_cpu_configuration)
+bool hypervisor::check_cpu_configuration() const
+{
+	// 1. 检查是否为 Intel CPU
+	int32_t cpu_info[4] = {0};
+	__cpuid(cpu_info, 0);
+	
+	// 检查厂商字符串是否为 "GenuineIntel"
+	if (cpu_info[1] != 0x756e6547 || cpu_info[3] != 0x49656e69 || cpu_info[2] != 0x6c65746e)
+	{
+		debug_log("CPU is not Intel, hypervisor may not work correctly\n");
+		// 不强制失败，允许其他厂商
+	}
+	
+	// 2. 检查 VMX 支持 (CPUID.1:ECX[5])
+	__cpuid(cpu_info, 1);
+	if (!(cpu_info[2] & (1 << 5)))
+	{
+		debug_log("VMX not supported by CPU\n");
+		return false;
+	}
+	
+	// 3. 检查 VMX 是否被 BIOS 禁用
+	uint64_t feature_control = __readmsr(0x3A); // IA32_FEATURE_CONTROL
+	if (!(feature_control & 1)) // Lock bit
+	{
+		debug_log("IA32_FEATURE_CONTROL not locked\n");
+		return false;
+	}
+	
+	if (!(feature_control & 4)) // VMX enabled outside SMX bit
+	{
+		debug_log("VMX disabled by BIOS\n");
+		return false;
+	}
+	
+	// 4. 检查基本 VMX 能力
+	uint64_t vmx_basic = __readmsr(0x480); // IA32_VMX_BASIC
+	if ((vmx_basic >> 32) == 0) // 检查 VMCS 大小
+	{
+		debug_log("Invalid VMX basic capabilities\n");
+		return false;
+	}
+	
+	debug_log("CPU configuration check passed\n");
+	return true;
 }

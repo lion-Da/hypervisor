@@ -2,6 +2,14 @@
 
 #include "vmx.hpp"
 
+// CPU 状态枚举 (基于 barehypervisor)
+enum class cpu_status : uint32_t
+{
+	stopped = 0,    // CPU 未运行 VMX
+	running = 1,    // CPU 正在运行 VMX  
+	corrupt = 2     // CPU 状态损坏，需要重启
+};
+
 class hypervisor
 {
 public:
@@ -16,6 +24,9 @@ public:
 
 	void enable();
 	void disable();
+	
+	// 安全的启用方法，可以延迟调用
+	bool try_enable_safely();
 
 	bool is_enabled() const;
 
@@ -39,10 +50,20 @@ private:
 	uint32_t vm_state_count_{0};
 	vmx::state** vm_states_{nullptr};
 	vmx::ept* ept_{nullptr};
+	
+	// CPU 状态跟踪 (基于 barehypervisor 模式)
+	cpu_status* cpu_status_array_{nullptr};
 
+	// CPU 配置检查 (基于 barehypervisor)
+	bool check_cpu_configuration() const;
+	
 	void enable_core(uint64_t system_directory_table_base);
 	bool try_enable_core(uint64_t system_directory_table_base);
 	void disable_core();
+	
+	// CPU 状态管理
+	void set_cpu_status(uint32_t cpu_id, cpu_status status);
+	cpu_status get_cpu_status(uint32_t cpu_id) const;
 
 	void allocate_vm_states();
 	void free_vm_states();
