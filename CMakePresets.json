@@ -5,7 +5,8 @@
         "minor": 20,
         "patch": 0
     },
-    "configurePresets": [{
+    "configurePresets": [
+        {
             "name": "release",
             "displayName": "Default Release Config",
             "description": "Release build using Ninja generator",
@@ -38,9 +39,22 @@
             "description": "Visual Studio 2022 on Windows",
             "generator": "Visual Studio 17 2022",
             "binaryDir": "${sourceDir}/build/vs2022"
+        },
+        {
+            "name": "Configure preset using toolchain file",
+            "displayName": "Configure preset using toolchain file",
+            "description": "Sets Ninja generator, build and install directory",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+            }
         }
     ],
-    "buildPresets": [{
+    "buildPresets": [
+        {
             "name": "release",
             "configurePreset": "release"
         },

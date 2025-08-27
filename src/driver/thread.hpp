@@ -1,4 +1,5 @@
 #pragma once
+#include "stdint.hpp"
 #include "functional.hpp"
 
 namespace thread

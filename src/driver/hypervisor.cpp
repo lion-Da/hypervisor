@@ -1091,21 +1091,12 @@ extern "C" [[ noreturn ]] void vm_exit_handler(CONTEXT* context)
 
 void setup_vmcs_for_cpu(vmx::state& vm_state)
 {
+	debug_log("setup_vmcs_for_cpu\n");
 	auto* launch_context = &vm_state.launch_context;
 	auto* state = &launch_context->special_registers;
 	auto* context = &launch_context->state_save.context_frame;
 
 	__vmx_vmwrite(VMCS_GUEST_VMCS_LINK_POINTER, ~0ULL);
-
-	if (launch_context->ept_controls.flags != 0)
-	{
-		const auto vmx_eptp = vm_state.ept->get_ept_pointer();
-		__vmx_vmwrite(VMCS_CTRL_EPT_POINTER, vmx_eptp.flags);
-		__vmx_vmwrite(VMCS_CTRL_VIRTUAL_PROCESSOR_IDENTIFIER, 1);
-	}
-
-	__vmx_vmwrite(VMCS_CTRL_MSR_BITMAP_ADDRESS, launch_context->msr_bitmap_physical_address);
-
 	// 启用安全的 MSR bitmap 配置 (修复 IA32_DEBUGCTL 卡死问题)
 	initialize_msr_handler(vm_state.msr_bitmap);
 
@@ -1113,36 +1104,62 @@ void setup_vmcs_for_cpu(vmx::state& vm_state)
 	// 设置为0表示不拦截任何异常，让Guest正常处理
 	uintptr_t exception_bitmap = 0;
 	__vmx_vmwrite(VMCS_CTRL_EXCEPTION_BITMAP, exception_bitmap);
-
+	//配置基于处理器的辅助vm执行控制信息域
 	auto ept_controls = launch_context->ept_controls;
 	ept_controls.enable_rdtscp = 1;
 	ept_controls.enable_invpcid = 1;
 	ept_controls.enable_xsaves = 1;
+	if(launch_context->ept_controls.flags != 0)
+	{
+		ept_controls.enable_ept = 1;
+		ept_controls.enable_vpid = 1;
+	}
 	__vmx_vmwrite(VMCS_CTRL_SECONDARY_PROCESSOR_BASED_VM_EXECUTION_CONTROLS,
 	              adjust_msr(launch_context->state_save.vmx_msr_data[11], ept_controls.flags));
 
-	__vmx_vmwrite(VMCS_CTRL_PIN_BASED_VM_EXECUTION_CONTROLS, adjust_msr(launch_context->state_save.vmx_msr_data[13], 0));
+	//配置基于pin的vm执行控制信息域
+	ia32_vmx_basic_register basic_msr;
+	basic_msr.flags = launch_context->state_save.vmx_msr_data[0].QuadPart;
+	ia32_vmx_pinbased_ctls_register pin_based_controls{};
+	ULARGE_INTEGER pin_msr;
+	pin_msr.QuadPart = basic_msr.vmx_controls ? 
+		launch_context->state_save.vmx_msr_data[13].QuadPart : launch_context->state_save.vmx_msr_data[1].QuadPart;
+	__vmx_vmwrite(VMCS_CTRL_PIN_BASED_VM_EXECUTION_CONTROLS, adjust_msr(pin_msr, pin_based_controls.flags));
 
+	//配置基于处理器的主vm执行控制信息域
 	ia32_vmx_procbased_ctls_register procbased_ctls_register{};
 	procbased_ctls_register.activate_secondary_controls = 1;
 	procbased_ctls_register.use_msr_bitmaps = 1;
-
 	__vmx_vmwrite(VMCS_CTRL_PROCESSOR_BASED_VM_EXECUTION_CONTROLS,
 	              adjust_msr(launch_context->state_save.vmx_msr_data[14],
 	                         procbased_ctls_register.flags));
-
+	//配置vm-exit控制信息域
 	ia32_vmx_exit_ctls_register exit_ctls_register{};
 	exit_ctls_register.host_address_space_size = 1;
-	__vmx_vmwrite(VMCS_CTRL_PRIMARY_VMEXIT_CONTROLS,
-	              adjust_msr(launch_context->state_save.vmx_msr_data[15],
-	                         exit_ctls_register.flags));
-
+	ULARGE_INTEGER exit_msr;
+	exit_msr.QuadPart = basic_msr.vmx_controls ? 
+		launch_context->state_save.vmx_msr_data[15].QuadPart : launch_context->state_save.vmx_msr_data[3].QuadPart;
+	__vmx_vmwrite(VMCS_CTRL_PRIMARY_VMEXIT_CONTROLS, adjust_msr(exit_msr, exit_ctls_register.flags));
+	//配置vm-entry控制域
 	ia32_vmx_entry_ctls_register entry_ctls_register{};
 	entry_ctls_register.ia32e_mode_guest = 1;
-	__vmx_vmwrite(VMCS_CTRL_VMENTRY_CONTROLS,
-	              adjust_msr(launch_context->state_save.vmx_msr_data[16],
-	                         entry_ctls_register.flags));
+	ULARGE_INTEGER entry_msr;
+	entry_msr.QuadPart = basic_msr.vmx_controls ? 
+		launch_context->state_save.vmx_msr_data[16].QuadPart : launch_context->state_save.vmx_msr_data[4].QuadPart;
+	__vmx_vmwrite(VMCS_CTRL_VMENTRY_CONTROLS, adjust_msr(entry_msr, entry_ctls_register.flags));
 
+    //设置msr bitmap
+	__vmx_vmwrite(VMCS_CTRL_MSR_BITMAP_ADDRESS, launch_context->msr_bitmap_physical_address);
+
+	//设置ept
+	if (launch_context->ept_controls.flags != 0)
+	{
+		ULONG processor = KeGetCurrentProcessorNumberEx(NULL);
+		const auto vmx_eptp = vm_state.ept->get_ept_pointer();
+		__vmx_vmwrite(VMCS_CTRL_EPT_POINTER, vmx_eptp.flags);
+		__vmx_vmwrite(VMCS_CTRL_VIRTUAL_PROCESSOR_IDENTIFIER, processor + 1);
+	}
+	//配置guest state,主要是寄存器域
 	vmx::gdt_entry gdt_entry{};
 	gdt_entry = convert_gdt_entry(state->gdtr.base_address, context->SegCs);
 	__vmx_vmwrite(VMCS_GUEST_CS_SELECTOR, gdt_entry.selector.flags);
@@ -1210,23 +1227,27 @@ void setup_vmcs_for_cpu(vmx::state& vm_state)
 	__vmx_vmwrite(VMCS_GUEST_IDTR_LIMIT, state->idtr.limit);
 	__vmx_vmwrite(VMCS_HOST_IDTR_BASE, state->idtr.base_address);
 
-	__vmx_vmwrite(VMCS_CTRL_CR0_READ_SHADOW, state->cr0);
-	__vmx_vmwrite(VMCS_HOST_CR0, state->cr0);
-	__vmx_vmwrite(VMCS_GUEST_CR0, state->cr0);
-
 	__vmx_vmwrite(VMCS_HOST_CR3, launch_context->system_directory_table_base);
 	__vmx_vmwrite(VMCS_GUEST_CR3, state->cr3);
+	//用于有条件拦截cr0,cr4的访问
+	__vmx_vmwrite(VMCS_HOST_CR0, state->cr0);
+	__vmx_vmwrite(VMCS_GUEST_CR0, state->cr0);
+	__vmx_vmwrite(VMCS_CTRL_CR0_READ_SHADOW, state->cr0); //state->cr0
 
 	__vmx_vmwrite(VMCS_HOST_CR4, state->cr4);
 	__vmx_vmwrite(VMCS_GUEST_CR4, state->cr4);
-	__vmx_vmwrite(VMCS_CTRL_CR4_READ_SHADOW, state->cr4);
-
-	// 配置 GUEST_IA32_DEBUGCTL - 使用物理机当前值，避免VM exit
-	// 这解决了MSR 0x1D9 频繁访问导致的虚拟机卡死问题
-	uint64_t current_debugctl = __readmsr(IA32_DEBUGCTL);
-	__vmx_vmwrite(VMCS_GUEST_DEBUGCTL, current_debugctl);
-	debug_log("GUEST_IA32_DEBUGCTL configured with physical value: 0x%llX\n", current_debugctl);
+	__vmx_vmwrite(VMCS_CTRL_CR4_READ_SHADOW, state->cr4); //state->cr4
+	//设置Guest Register State
 	__vmx_vmwrite(VMCS_GUEST_DR7, state->kernel_dr7);
+	__vmx_vmwrite(VMCS_GUEST_DEBUGCTL, __readmsr(IA32_DEBUGCTL));
+	__vmx_vmwrite(VMCS_GUEST_SYSENTER_CS, __readmsr(IA32_SYSENTER_CS));
+	__vmx_vmwrite(VMCS_GUEST_SYSENTER_ESP, __readmsr(IA32_SYSENTER_ESP));
+	__vmx_vmwrite(VMCS_GUEST_SYSENTER_EIP, __readmsr(IA32_SYSENTER_EIP));
+	__vmx_vmwrite(VMCS_GUEST_PERF_GLOBAL_CTRL, __readmsr(IA32_PERF_CTL));
+	__vmx_vmwrite(VMCS_GUEST_PAT, __readmsr(IA32_PAT));
+	__vmx_vmwrite(VMCS_GUEST_EFER, __readmsr(IA32_EFER));
+	__vmx_vmwrite(VMCS_GUEST_BNDCFGS, __readmsr(IA32_BNDCFGS));
+
 
 	const auto stack_pointer = reinterpret_cast<uintptr_t>(vm_state.stack_buffer) + KERNEL_STACK_SIZE - sizeof(
 		CONTEXT);
@@ -1252,6 +1273,7 @@ void initialize_msrs(vmx::launch_context& launch_context)
 
 [[ noreturn ]] void launch_hypervisor(vmx::state& vm_state)
 {
+	debug_log("launch_hypervisor\n");
 	initialize_msrs(vm_state.launch_context);
 	//vm_state.ept->initialize();
 
